@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Finder</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Base styles and transitions */
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    /* Dark mode (default) */
+    body.dark-mode {
+      background: #222;
+      color: #eee;
+    }
+    /* Light mode */
+    body.light-mode {
+      background: #f2f2f2;
+      color: #333;
+    }
+    /* Container styling */
+    .container {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    body.dark-mode .container {
+      background: #333;
+    }
+    body.light-mode .container {
+      background: #fff;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    p {
+      text-align: center;
+      font-size: 12px;
+    }
+    /* Dark mode toggle button */
+    #toggleDark {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark-mode #toggleDark {
+      background: #444;
+      color: #eee;
+    }
+    body.light-mode #toggleDark {
+      background: #ddd;
+      color: #333;
+    }
+    /* Flex layout for dropdown selectors */
+    #selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    body.dark-mode select {
+      background: #555;
+      color: #eee;
+      border-color: #666;
+    }
+    body.light-mode select {
+      background: #fff;
+      color: #333;
+      border-color: #ccc;
+    }
+    .connector {
+      font-size: 16px;
+      margin: 0 5px;
+    }
+    /* Results styling */
+    #results {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    #results > div {
+      flex: 1 1 45%;
+    }
+    ul {
+      list-style-type: none; /* checkboxes used instead of bullets */
+      padding-left: 0;
+    }
+    ul li {
+      padding-bottom: 10px;
+    }
+    /* The checkbox and text styling */
+    label {
+      cursor: pointer;
+    }
+    label span.crossed {
+      text-decoration: line-through;
+    }
+    @media (max-width: 480px) {
+      #results > div {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="container">
+    <button id="toggleDark">Switch to Light Mode</button>
+    <h1>Feature Finder</h1>
+    <p>made by Looh for Randovania</p>
+    <div id="selector">
+      <select id="pickupSelect"></select>
+      <span class="connector">can be found</span>
+      <select id="locationSelect"></select>
+    </div>
+    <div id="results">
+      <div id="pickupResults">
+        <ul id="pickupList"></ul>
+      </div>
+      <div id="locationResults">
+        <ul id="locationList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Function to determine color based on location text.
+    function getLocationColor(text) {
+      // If the text contains "Dark" (as a separate word), use purpleish red.
+      if (/\bDark\b/.test(text) || /Ing Hive/.test(text) || /Sky Temple Grounds/.test(text)) {
+        return "red";
+      } 
+      // Check for Temple Grounds or Great Temple.
+      else if (/Temple Grounds/.test(text) || /Great Temple/.test(text)) {
+        return "orchid";
+      } 
+      // Check for Agon Wastes.
+      else if (/Agon Wastes/.test(text)) {
+        return "darkorange";
+      } 
+      // Check for Torvus Bog.
+      else if (/Torvus Bog/.test(text)) {
+        return "olivedrab";
+      } 
+      // Check for Sanctuary Fortress.
+      else if (/Sanctuary Fortress/.test(text)) {
+        return "cyan";
+      }
+      return "";
+    }
+
+    // JSON data for the app
+    var jsonData = {
+      "pickup_features": {
+        "some Chozo technology": [
+          "Combat Visor", "Scan Visor", "Varia Suit", "Power Beam", "Charge Beam", "Morph Ball",
+          "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Space Jump Boots",
+          "Grapple Beam", "Screw Attack", "Progressive Grapple", "Missile Launcher", "Super Missile", "Energy Tank", "Missile Expansion", "Power Bomb Expansion"
+        ],
+        "an Energy Tank": ["Energy Tank"],
+        "a HUD system": [
+          "Combat Visor", "Scan Visor", "Dark Visor", "Echo Visor", "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator"
+        ],
+        "some Luminoth technology": [
+          "Dark Visor", "Echo Visor",
+          "Dark Suit", "Light Suit", "Progressive Suit",
+          "Dark Beam", "Light Beam", "Annihilator Beam", 
+          "Cannon Ball", "Gravity Boost", "Seeker Launcher", 
+          "Sunburst", "Darkburst", "Sonic Boom",
+          "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator",
+          "Dark Ammo Expansion", "Light Ammo Expansion", "Beam Ammo Expansion"
+        ],
+        "a beam": [
+          "Power Beam", "Charge Beam", "Dark Beam", "Light Beam", "Annihilator Beam", "Double Damage", "Unlimited Beam Ammo"
+        ],
+        "a charge combo": ["Super Missile", "Sunburst", "Darkburst", "Sonic Boom"],
+        "a cheater's delight": ["Double Damage", "Unlimited Beam Ammo", "Unlimited Missiles", "Cannon Ball"],
+        "a dark-aligned upgrade": ["Dark Visor", "Dark Suit", "Dark Beam", "Annihilator Beam", "Darkburst", "Sonic Boom"],
+        "a key": ["Dark Agon Key", "Dark Torvus Key", "Ing Hive Key", "Sky Temple Key"],
+        "a light-aligned upgrade": ["Light Suit", "Light Beam", "Annihilator Beam", "Sunburst", "Sonic Boom"],
+        "a major item": [
+          "Combat Visor", "Scan Visor", "Varia Suit", "Power Beam", "Charge Beam", "Morph Ball",
+          "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Space Jump Boots",
+          "Grapple Beam", "Screw Attack", "Progressive Grapple", "Missile Launcher", "Super Missile", "Energy Tank", "Missile Expansion",
+          "Dark Visor", "Echo Visor",
+          "Dark Suit", "Light Suit", "Progressive Suit",
+          "Dark Beam", "Light Beam", "Annihilator Beam", 
+          "Cannon Ball", "Gravity Boost", "Seeker Launcher", 
+          "Sunburst", "Darkburst", "Sonic Boom",
+          "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator",
+          "Double Damage", "Unlimited Beam Ammo", "Unlimited Missiles", "Cannon Ball"
+        ],
+        "a missile system": ["Missile Launcher", "Unlimited Missiles", "Seeker Launcher", "Super Missile", "Sunburst", "Darkburst", "Sonic Boom"],
+        "a morph ball system": ["Morph Ball", "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Cannon Ball"],
+        "a movement system": ["Space Jump Boots", "Gravity Boost", "Grapple Beam", "Screw Attack", "Progressive Grapple"],
+        "a suit": ["Varia Suit","Dark Suit", "Light Suit", "Progressive Suit"],
+        "a translator": ["Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator"],
+        "a visor": ["Combat Visor", "Scan Visor", "Dark Visor", "Echo Visor"]
+      },
+      "location_features": {
+        "guarded by a Boss": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → Hive Chamber A", 
+            "Great Temple → Temple Sanctuary", 
+            "Agon Wastes → Agon Temple",
+            "Dark Agon Wastes → Judgment Pit",
+            "Dark Agon Wastes → Dark Agon Temple",
+            "Torvus Bog → Hydrochamber Storage",
+            "Dark Torvus Bog → Dark Torvus Temple",
+            "Dark Torvus Bog → Dark Torvus Arena (Guardian)",
+            "Dark Torvus Bog → Sacrificial Chamber", 
+            "Dark Torvus Bog → Undertemple (Guardian)",
+            "Sanctuary Fortress → Main Research",
+            "Sanctuary Fortress → Aerie",
+            "Ing Hive → Hive Temple"
+          ]
+        },
+        "in a Morph Ball tunnel": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → Hive Chamber B", 
+            "Great Temple → Transport B Access",
+            "Agon Wastes → Mining Station Access",
+            "Dark Agon Wastes → Ing Cache 4",
+            "Dark Agon Wastes → Junction Site",
+            "Agon Wastes → Mine Shaft",
+            "Agon Wastes → Portal Access A",
+            "Agon Wastes → Ventilation Area A",
+            "Agon Wastes → Command Center",
+            "Torvus Bog → Plaza Access",
+            "Torvus Bog → Temple Access",
+            "Torvus Bog → Underground Tunnel",
+            "Torvus Bog → Transit Tunnel South",
+            "Torvus Bog → Transit Tunnel East",
+            "Dark Torvus Bog → Undertransit One",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Sanctuary Fortress → Dynamo Works (Pickup)",
+            "Sanctuary Fortress → Watch Station",
+            "Sanctuary Fortress → Temple Access",
+            "Ing Hive → Culling Chamber"
+          ]
+        },
+        "in a regional Temple": {
+          "memo": "",
+          "list": [
+            "Great Temple → Temple Sanctuary",
+            "Agon Wastes → Agon Temple",
+            "Dark Agon Wastes → Dark Agon Temple", 
+            "Torvus Bog → Torvus Temple",
+            "Dark Torvus Bog → Dark Torvus Temple", 
+            "Ing Hive → Hive Temple"
+          ]
+        },
+        "near a Bomb Slot": {
+          "memo": "",
+          "list": [
+            "Agon Wastes → Mining Station B",
+            "Agon Wastes → Transport Center",
+            "Dark Agon Wastes → Junction Site",
+            "Agon Wastes → Sand Processing",
+            "Torvus Bog → Forgotten Bridge",
+            "Torvus Bog → Plaza Access",
+            "Torvus Bog → Gathering Hall",
+            "Torvus Bog → Training Chamber",
+            "Dark Torvus Bog → Undertemple (Pickup)",
+            "Dark Torvus Bog → Undertemple (Guardian)",
+            "Torvus Bog → Transit Tunnel South",
+            "Torvus Bog → Transit Tunnel East",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Sanctuary Fortress → Dynamo Works (Pickup)",
+            "Sanctuary Fortress → Dynamo Works (Guardian)",
+            "Sanctuary Fortress → Watch Station",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Vault"
+          ]
+        },
+        "near a Boost Pipe": {
+          "memo": "",
+          "list": [
+            "Agon Wastes → Mining Station B",
+            "Agon Wastes → Sand Processing",
+            "Agon Wastes → Transport Center",
+            "Dark Agon Wastes → Crossroads",
+            "Torvus Bog → Gathering Hall",
+            "Torvus Bog → Plaza Access",
+            "Torvus Bog → Torvus Grove",
+            "Torvus Bog → Torvus Plaza",
+            "Dark Torvus Bog → Dark Torvus Arena",
+            "Sanctuary Fortress → Dynamo Works"
+          ]
+        },
+        "near a Boost Spinner": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → Grand Windchamber",
+            "Temple Grounds → Hall of Honored Dead",
+            "Torvus Bog → Forgotten Bridge",
+            "Torvus Bog → Training Chamber",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Temple Access",
+            "Sanctuary Fortress → Vault"
+          ]
+        },
+        "near a Dark Visor Lock": {
+          "memo": "",
+          "list": [
+            "Sky Temple Grounds → War Ritual Grounds",
+            "Sanctuary Fortress → Temple Access",
+            "Ing Hive → Hive Dynamo Works",
+          ]
+        },
+        "near a Grapple Point": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → Grand Windchamber",
+            "Temple Grounds → Windchamber Gateway",
+            "Torvus Bog → Abandoned Worksite",
+            "Torvus Bog → Gathering Hall",
+            "Torvus Bog → Path of Roots",
+            "Dark Torvus Bog → Dark Torvus Temple",
+            "Dark Torvus Bog → Sacrificial Chamber",
+            "Dark Torvus Bog → Venomous Pond",
+            "Sanctuary Fortress → Watch Station Access",
+            "Ing Hive → Hive Dynamo Works"
+          ]
+        },
+        "near a Keybearer corpse": {
+          "memo": "",
+          "list": [
+            "Agon Wastes → Central Mining Station",
+            "Agon Wastes → Main Reactor",
+            "Torvus Bog → Torvus Lagoon",
+            "Sanctuary Fortress → Dynamo Works (Pickup)",
+            "Sanctuary Fortress → Dynamo Works (Guardian)"
+          ]
+        },
+        "near a Kinetic Orb Cannon": {
+          "memo": "Note that this does not include the underwater cannons in Lower Torvus Bog, as these cannons do not remove Cannon Ball from you if used.",
+          "list": [
+            "Temple Grounds → GFMC Compound",
+            "Temple Grounds → Grand Windchamber",
+            "Temple Grounds → Windchamber Gateway",
+            "Agon Wastes → Mining Station A",
+            "Agon Wastes → Mining Station Access",
+            "Agon Wastes → Mining Station B",
+            "Agon Wastes → Portal Access A",
+            "Agon Wastes → Sandcanyon",
+            "Torvus Bog → Gathering Hall",
+            "Sanctuary Fortress → Central Area Transport West",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Reactor Core",
+            "Sanctuary Fortress → Sanctuary Entrance",
+            "Sanctuary Fortress → Temple Access",
+            "Sanctuary Fortress → Watch Station"
+          ]
+        },
+        "near a Light Beam Transport": {
+          "memo": "",
+          "list": [
+            "Great Temple → Main Energy Controller",
+            "Temple Grounds → Fortress Transport Access",
+            "Agon Wastes → Agon Energy Controller",
+            "Torvus Bog → Torvus Energy Controller",
+            "Sanctuary Fortress → Sanctuary Energy Controller",
+            "Sanctuary Fortress → Sanctuary Map Station",
+            "Ing Hive → Hive Entrance"
+          ]
+        },
+        "near a Luminoth corpse": {
+          "memo": "This includes the Keybearer lore scan hints.",
+          "list": [
+            "Temple Grounds → Hall of Honored Dead",
+            "Sky Temple Grounds → Plain of Dark Worship",
+            "Agon Wastes → Agon Energy Controller",
+            "Agon Wastes → Central Mining Station", 
+            "Agon Wastes → Main Reactor",
+            "Agon Wastes → Mining Station B",
+            "Dark Agon Wastes → Ing Cache 1",
+            "Torvus Bog → Torvus Energy Controller",
+            "Torvus Bog → Torvus Lagoon",
+            "Dark Torvus Bog → Dark Torvus Arena (Pickup)",
+            "Dark Torvus Bog → Dark Torvus Arena (Guardian)",
+            "Sanctuary Fortress → Dynamo Works (Pickup)",
+            "Sanctuary Fortress → Dynamo Works (Guardian)",
+            "Sanctuary Fortress → Sanctuary Energy Controller",
+            "Sanctuary Fortress → Sanctuary Entrance"
+          ]
+        },
+        "near a Portal": {
+          "memo": "This includes both kinds of portals.",
+          "list": [
+            "Temple Grounds → Grand Windchamber",
+            "Temple Grounds → Hall of Honored Dead",
+            "Temple Grounds → Temple Assembly Site",
+            "Sky Temple Grounds → Plain of Dark Worship",
+            "Sky Temple Grounds → Profane Path",
+            "Agon Wastes → Command Center",
+            "Agon Wastes → Mining Station B",
+            "Agon Wastes → Transport Center",
+            "Dark Agon Wastes → Dark Oasis",
+            "Torvus Bog → Forgotten Bridge",
+            "Torvus Bog → Gathering Hall",
+            "Torvus Bog → Meditation Vista",
+            "Torvus Bog → Portal Chamber (Light)",
+            "Dark Torvus Bog → Dungeon",
+            "Dark Torvus Bog → Undertemple (Pickup)",
+            "Dark Torvus Bog → Undertemple (Guardian)",
+            "Dark Torvus Bog → Undertemple Access",
+            "Sanctuary Fortress → Aerie",
+            "Sanctuary Fortress → Dynamo Works (Pickup)",
+            "Sanctuary Fortress → Dynamo Works (Guardian)",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Sanctuary Fortress → Main Research",
+            "Sanctuary Fortress → Vault",
+            "Sanctuary Fortress → Watch Station",
+            "Ing Hive → Aerial Training Site (SA Wall)",
+            "Ing Hive → Aerial Training Site (Platform)",
+            "Ing Hive → Culling Chamber",
+            "Ing Hive → Hive Dynamo Works"
+          ]
+        },
+        "near a Screw Attack Wall": {
+          "memo": "",
+          "list": [
+            "Dark Torvus Bog → Undertemple (Pickup)",
+            "Dark Torvus Bog → Undertemple (Guardian)",
+            "Ing Hive → Aerial Training Site"
+          ]
+        },
+        "near a Spider Track": {
+          "memo": "",
+          "list": [
+            "Agon Wastes → Central Mining Station",
+            "Agon Wastes → Main Reactor",
+            "Agon Wastes → Mining Station A",
+            "Dark Agon Wastes → Junction Site",
+            "Sanctuary Fortress → Dynamo Works (Pickup)",
+            "Sanctuary Fortress → Dynamo Works (Guardian)",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Main Research",
+            "Sanctuary Fortress → Reactor Core",
+            "Sanctuary Fortress → Sanctuary Entrance",
+            "Sanctuary Fortress → Transit Station",
+            "Sanctuary Fortress → Watch Station",
+            "Ing Hive → Culling Chamber",
+            "Ing Hive → Hive Dynamo Works",
+            "Ing Hive → Hive Gyro Chamber",
+            "Ing Hive → Hive Temple",
+            "Torvus Bog → Gathering Hall",
+            "Torvus Bog → Torvus Plaza",
+            "Torvus Bog → Training Chamber",
+            "Dark Torvus Bog → Undertemple (Pickup)",
+            "Dark Torvus Bog → Undertemple (Guardian)"
+          ]
+        },
+        "near a Translator Gate": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → GFMC Compound",
+            "Temple Grounds → Temple Assembly Site",
+            "Agon Wastes → Mining Plaza",
+            "Agon Wastes → Mining Station A",
+            "Torvus Bog → Great Bridge",
+            "Torvus Bog → Torvus Temple",
+            "Great Temple → Temple Sanctuary",
+            "Sanctuary Fortress → Reactor Core"
+          ]
+        },
+        "near an Echo Visor Lock": {
+          "memo": "",
+          "list": [
+            "Agon Wastes → Mining Plaza",
+            "Sanctuary Fortress → Aerie",
+            "Sanctuary Fortress → Central Area Transport West",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Main Research",
+            "Sanctuary Fortress → Sentinel's Path",
+            "Sanctuary Fortress → Temple Access",
+            "Sky Temple Grounds → Profane Path"
+          ]
+        },
+        "near an Energy Controller": {
+          "memo": "",
+          "list": [
+            "Great Temple → Main Energy Controller (1st Pass)",
+            "Great Temple → Main Energy Controller (2-Mos)",
+            "Agon Wastes → Agon Energy Controller",
+            "Torvus Bog → Torvus Energy Controller",
+            "Sanctuary Fortress → Sanctuary Energy Controller"
+          ]
+        },
+        "near an elevator unit": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → Transport to Agon Wastes",
+            "Agon Wastes → Command Center",
+            "Agon Wastes → Main Reactor",
+            "Torvus Bog → Torvus Temple",
+            "Dark Torvus Bog → Dark Torvus Temple",
+            "Sanctuary Fortress → Aerie",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Ing Hive → Hive Temple"
+          ]
+        },
+        "near some Luminoth Lore": {
+          "memo": "This refers to translator scans only.",
+          "list": [
+            "Agon Wastes → Agon Energy Controller",
+            "Agon Wastes → Mining Plaza",
+            "Agon Wastes → Mining Station A",
+            "Agon Wastes → Mining Station B",
+            "Great Temple → Main Energy Controller",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Sanctuary Energy Controller",
+            "Sanctuary Fortress → Sanctuary Entrance",
+            "Sanctuary Fortress → Watch Station",
+            "Temple Grounds → Fortress Transport Access",
+            "Temple Grounds → Transport to Agon Wastes",
+            "Torvus Bog → Gathering Hall",
+            "Torvus Bog → Path of Roots",
+            "Torvus Bog → Torvus Energy Controller",
+            "Torvus Bog → Training Chamber",
+            "Torvus Bog → Underground Tunnel"
+          ]
+        },
+        "near some Phazon": {
+          "memo": "",
+          "list": [
+            "Agon Wastes → Main Reactor",
+            "Dark Agon Wastes → Dark Oasis",
+            "Dark Agon Wastes → Doomed Entry",
+            "Dark Agon Wastes → Feeding Pit",
+            "Dark Agon Wastes → Warrior's Walk",
+            "Sanctuary Fortress → Aerie",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Ing Hive → Culling Chamber",
+            "Sky Temple Grounds → Phazon Grounds"
+          ]
+        },
+        "overtop an Abyss": {
+          "memo": "",
+          "list": [
+            "Temple Grounds → GFMC Compound",
+            "Temple Grounds → Grand Windchamber",
+            "Temple Grounds → Transport to Agon Wastes",
+            "Temple Grounds → Windchamber Gateway",
+            "Sky Temple Grounds → Phazon Grounds",
+            "Agon Wastes → Sandcanyon",
+            "Torvus Bog → Meditation Vista",
+            "Sanctuary Fortress → Aerie",
+            "Sanctuary Fortress → Sanctuary Energy Controller",
+            "Sanctuary Fortress → Sanctuary Entrance",
+            "Sanctuary Fortress → Vault",
+            "Sanctuary Fortress → Watch Station",
+            "Sanctuary Fortress → Watch Station Access",
+            "Ing Hive → Aerial Training Site",
+            "Ing Hive → Hazing Cliff",
+            "Ing Hive → Hive Dynamo Works",
+            "Ing Hive → Hive Entrance"
+          ]
+        },
+        "submerged in water": {
+          "memo": "",
+          "list": [
+            "Dark Agon Wastes → Dark Oasis",
+            "Dark Agon Wastes → Feeding Pit",
+            "Torvus Bog → Hydrochamber Storage",
+            "Torvus Bog → Hydrodynamo Station",
+            "Torvus Bog → Torvus Lagoon",
+            "Torvus Bog → Training Chamber",
+            "Torvus Bog → Transit Tunnel East",
+            "Torvus Bog → Transit Tunnel South",
+            "Dark Torvus Bog → Dungeon",
+            "Dark Torvus Bog → Poisoned Bog"
+          ]
+        }
+      }
+    };
+
+    // Global stores keyed by item text (for pickups and locations separately)
+    var globalCrossedPickups = {};
+    var globalCrossedLocations = {};
+
+    // Update list function using the global store.
+    function updateList(selectId, listId, features, globalStore) {
+      var selectedKey = $('#' + selectId).val();
+      var memo = features[selectedKey].memo || "";
+      var items = features[selectedKey].list || features[selectedKey];
+      var $list = $('#' + listId);
+      $list.empty();
+
+      if (memo) {
+        $list.append(`<p>${memo}</p>`);
+      }
+
+      if (items.length === 0) {
+        $list.append('<li><em>No items available</em></li>');
+      } else {
+        $.each(items, function(index, item) {
+          var isChecked = globalStore[item] || false;
+          var $label = $('<label></label>');
+          var $checkbox = $('<input type="checkbox">').prop('checked', isChecked);
+          var $span = $('<span></span>').text(item);
+          // If this is the location list, color-code the text.
+          if (listId === 'locationList') {
+            var color = getLocationColor(item);
+            if (color) {
+              $span.css("color", color);
+            }
+          }
+          if (isChecked) {
+            $span.addClass('crossed');
+          }
+          $label.append($checkbox).append(' ').append($span);
+          var $li = $('<li></li>').append($label);
+          $list.append($li);
+        });
+      }
+    }
+
+    $(document).ready(function() {
+      // Populate the pickup_features dropdown
+      var $pickupSelect = $('#pickupSelect');
+      $.each(jsonData.pickup_features, function(key, value) {
+        $pickupSelect.append($('<option></option>').attr('value', key).text(key));
+      });
+
+      // Populate the location_features dropdown
+      var $locationSelect = $('#locationSelect');
+      $.each(jsonData.location_features, function(key, value) {
+        $locationSelect.append($('<option></option>').attr('value', key).text(key));
+      });
+
+      // Initial update of both lists using the first option in each dropdown
+      updateList('pickupSelect', 'pickupList', jsonData.pickup_features, globalCrossedPickups);
+      updateList('locationSelect', 'locationList', jsonData.location_features, globalCrossedLocations);
+
+      // Update lists when dropdowns change
+      $pickupSelect.on('change', function() {
+        updateList('pickupSelect', 'pickupList', jsonData.pickup_features, globalCrossedPickups);
+      });
+
+      $locationSelect.on('change', function() {
+        updateList('locationSelect', 'locationList', jsonData.location_features, globalCrossedLocations);
+      });
+
+      // Dark mode toggle
+      $('#toggleDark').on('click', function() {
+        $('body').toggleClass('dark-mode light-mode');
+        if ($('body').hasClass('dark-mode')) {
+          $(this).text('Switch to Light Mode');
+        } else {
+          $(this).text('Switch to Dark Mode');
+        }
+      });
+
+      // Toggle the checkbox state and update the global store.
+      $('#pickupList, #locationList').on('change', 'input[type="checkbox"]', function() {
+        var $li = $(this).closest('li');
+        var itemText = $li.find('span').text();
+        var listId = $li.closest('ul').attr('id');
+        if (listId === 'pickupList') {
+          globalCrossedPickups[itemText] = $(this).prop('checked');
+          updateList('pickupSelect', 'pickupList', jsonData.pickup_features, globalCrossedPickups);
+        } else if (listId === 'locationList') {
+          globalCrossedLocations[itemText] = $(this).prop('checked');
+          updateList('locationSelect', 'locationList', jsonData.location_features, globalCrossedLocations);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
