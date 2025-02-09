@@ -23,11 +23,16 @@
       background: #f2f2f2;
       color: #333;
     }
-    /* Container styling */
-    .container {
-      position: relative;
-      max-width: 800px;
+    /* Wrapper for the main container and the combinations box */
+    #wrapper {
+      display: flex;
+      gap: 20px;
+      max-width: 1400px;
       margin: 0 auto;
+    }
+    /* Main container styling */
+    .container {
+      flex: 1;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -96,6 +101,14 @@
       font-size: 16px;
       margin: 0 5px;
     }
+    /* Plus button styling */
+    #addCombination {
+      padding: 8px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
     /* Results styling */
     #results {
       display: flex;
@@ -120,54 +133,103 @@
     label span.crossed {
       text-decoration: line-through;
     }
-    @media (max-width: 480px) {
-      #results > div {
-        flex: 1 1 100%;
+    /* Tracked Combinations container (outside the main box) */
+    #combinationContainer {
+      flex: 1;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+      height: fit-content;
+    }
+    body.dark-mode #combinationContainer {
+      background: #444;
+      border-color: #666;
+    }
+    #combinationContainer h2 {
+      margin-top: 0;
+      font-size: 18px;
+      text-align: center;
+    }
+    @media (max-width: 768px) {
+      #wrapper {
+        flex-direction: column;
+        max-width: 100%;
       }
+      #combinationContainer {
+        flex: 1;
+      }
+    }
+    .combination-location-select {
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+    .delete-item {
+      float: left;
+      height: 75px;
+      margin-top: 32px;
+      margin-left: -12px;
+      margin-right: 12px;
+    }
+    .delete-item:hover, .lore-help:hover {
+      cursor: pointer;
+    }
+
+    .lore-help {
+    }
+    .load-combination {
+      margin-left: 12px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    #pickupSelect, #locationSelect, .specific-item-dropdown {
+      color: red;
     }
   </style>
 </head>
 <body class="dark-mode">
-  <div class="container">
-    <button id="toggleDark">Switch to Light Mode</button>
-    <h1>Feature Finder</h1>
-    <p>made by Looh for Randovania</p>
-    <div id="selector">
-      <select id="pickupSelect"></select>
-      <span class="connector">can be found</span>
-      <select id="locationSelect"></select>
+  <button id="toggleDark">Switch to Light Mode</button>
+  <div id="wrapper">
+    <div class="container">
+      <h1>Feature Finder</h1>
+      <p>Explore pickup categories on the left, and location categories on the right. Click an item to cross it out. Selections are preserved across categories.</p>
+      <div id="selector">
+        <select id="pickupSelect"></select>
+        <span class="connector">can be found</span>
+        <select id="locationSelect"></select>
+        <button id="addCombination">+</button>
+      </div>
+      <div id="results">
+        <div id="pickupResults">
+          <ul id="pickupList"></ul>
+        </div>
+        <div id="locationResults">
+          <ul id="locationList"></ul>
+        </div>
+      </div>
     </div>
-    <div id="results">
-      <div id="pickupResults">
-        <ul id="pickupList"></ul>
-      </div>
-      <div id="locationResults">
-        <ul id="locationList"></ul>
-      </div>
+    <!-- Tracked Combinations List -->
+    <div id="combinationContainer">
+      <h2>Tracked Hints</h2>
+      <p style="font-size: 10px;">Click the + button by the dropdowns to add a scanned hint below. Click X to delete a hint or ? to explore the hint in the finder on the left.</p>
+      <ul id="combinationList"></ul>
     </div>
   </div>
 
   <script>
     // Function to determine color based on location text.
     function getLocationColor(text) {
-      // If the text contains "Dark" (as a separate word), use purpleish red.
       if (/\bDark\b/.test(text) || /Ing Hive/.test(text) || /Sky Temple Grounds/.test(text)) {
         return "red";
-      } 
-      // Check for Temple Grounds or Great Temple.
-      else if (/Temple Grounds/.test(text) || /Great Temple/.test(text)) {
+      } else if (/Temple Grounds/.test(text) || /Great Temple/.test(text)) {
         return "orchid";
-      } 
-      // Check for Agon Wastes.
-      else if (/Agon Wastes/.test(text)) {
+      } else if (/Agon Wastes/.test(text)) {
         return "darkorange";
-      } 
-      // Check for Torvus Bog.
-      else if (/Torvus Bog/.test(text)) {
+      } else if (/Torvus Bog/.test(text)) {
         return "olivedrab";
-      } 
-      // Check for Sanctuary Fortress.
-      else if (/Sanctuary Fortress/.test(text)) {
+      } else if (/Sanctuary Fortress/.test(text)) {
         return "cyan";
       }
       return "";
@@ -187,17 +249,13 @@
           "Sunburst", "Darkburst", "Sonic Boom",
           "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator",
           "Double Damage", "Unlimited Beam Ammo", "Unlimited Missiles", "Cannon Ball",
-          "Dark Ammo Expansion", "Light Ammo Expansion", "Beam Ammo Expansion",
+          "Dark Ammo Expansion", "Light Ammo Expansion", "Beam Ammo Expansion"
         ],
         "some Chozo technology": [
           "Combat Visor", "Scan Visor", "Varia Suit", "Power Beam", "Charge Beam", "Morph Ball",
           "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Space Jump Boots",
           "Grapple Beam", "Screw Attack", "Progressive Grapple", "Missile Launcher", "Super Missile", "Energy Tank", "Missile Expansion", "Power Bomb Expansion"
         ],
-        //"an Energy Tank": ["Energy Tank"],
-        // "a HUD system": [
-        //   "Combat Visor", "Scan Visor", "Dark Visor", "Echo Visor", "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator"
-        // ],
         "some Luminoth technology": [
           "Dark Visor", "Echo Visor",
           "Dark Suit", "Light Suit", "Progressive Suit",
@@ -218,7 +276,7 @@
         "a missile system": ["Missile Launcher", "Unlimited Missiles", "Seeker Launcher", "Super Missile", "Sunburst", "Darkburst", "Sonic Boom"],
         "a morph ball system": ["Morph Ball", "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb"],
         "a movement system": ["Space Jump Boots", "Gravity Boost", "Grapple Beam", "Screw Attack", "Progressive Grapple"],
-        "a suit": ["Varia Suit","Dark Suit", "Light Suit", "Progressive Suit"],
+        "a suit": ["Varia Suit", "Dark Suit", "Light Suit", "Progressive Suit"],
         "a translator": ["Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator"],
         "a visor": ["Combat Visor", "Scan Visor", "Dark Visor", "Echo Visor"]
       },
@@ -332,7 +390,7 @@
           "list": [
             "Sky Temple Grounds → War Ritual Grounds",
             "Sanctuary Fortress → Temple Access",
-            "Ing Hive → Hive Dynamo Works",
+            "Ing Hive → Hive Dynamo Works"
           ]
         },
         "near a Grapple Point": {
@@ -605,22 +663,20 @@
       }
     };
 
-    // Global stores keyed by item text (for pickups and locations separately)
+    // Global stores for checkboxes
     var globalCrossedPickups = {};
     var globalCrossedLocations = {};
 
-    // Update list function using the global store.
+    // Update list function for rendering checkboxes
     function updateList(selectId, listId, features, globalStore) {
       var selectedKey = $('#' + selectId).val();
       var memo = features[selectedKey].memo || "";
       var items = features[selectedKey].list || features[selectedKey];
       var $list = $('#' + listId);
       $list.empty();
-
       if (memo) {
-        $list.append(`<p>${memo}</p>`);
+        $list.append('<p>' + memo + '</p>');
       }
-
       if (items.length === 0) {
         $list.append('<li><em>No items available</em></li>');
       } else {
@@ -628,8 +684,11 @@
           var isChecked = globalStore[item] || false;
           var $label = $('<label></label>');
           var $checkbox = $('<input type="checkbox">').prop('checked', isChecked);
+          $checkbox.on('change', function() {
+            globalStore[item] = $(this).prop('checked');
+            updateList(selectId, listId, features, globalStore);
+          });
           var $span = $('<span></span>').text(item);
-          // If this is the location list, color-code the text.
           if (listId === 'locationList') {
             var color = getLocationColor(item);
             if (color) {
@@ -639,40 +698,83 @@
           if (isChecked) {
             $span.addClass('crossed');
           }
-          $label.append($checkbox).append(' ').append($span);
-          var $li = $('<li></li>').append($label);
-          $list.append($li);
+          $label.append($checkbox).append(" ").append($span);
+          $list.append($('<li></li>').append($label));
         });
       }
     }
 
+    // Data structure for lore scan dropdown options.
+    var regionRooms = {
+      "Temple Grounds": [
+        "Fortress Transport Access", 
+        "Industrial Site (Keybearer)", 
+        "Landing Site (Keybearer)", 
+        "Meeting Grounds", 
+        "Path of Eyes", 
+        "Storage Cavern A (Keybearer)", 
+        "Transport to Agon Wastes"
+      ],
+      "Great Temple": [
+        "Main Energy Controller"
+      ],
+      "Agon Wastes": [
+        "Agon Energy Controller", 
+        "Central Mining Station (Keybearer)", 
+        "Main Reactor (Keybearer)", 
+        "Mining Plaza", 
+        "Mining Station A", 
+        "Mining Station B", 
+        "Portal Terminal"
+      ],
+      "Torvus Bog": [
+        "Catacombs (Emerald)", 
+        "Catacombs (Keybearer)", 
+        "Gathering Hall", 
+        "Path of Roots", 
+        "Torvus Energy Controller", 
+        "Torvus Lagoon (Keybearer)", 
+        "Training Chamber", 
+        "Underground Tunnel"
+      ],
+      "Sanctuary Fortress": [
+        "Dynamo Works (Keybearer)", 
+        "Hall of Combat Mastery", 
+        "Main Gyro Chamber", 
+        "Main Research", 
+        "Sanctuary Energy Controller", 
+        "Sanctuary Entrance (Cobalt)", 
+        "Sanctuary Entrance (Keybearer)", 
+        "Watch Station"
+      ]
+    };
+
     $(document).ready(function() {
-      // Populate the pickup_features dropdown
+      // Populate the pickup_features dropdown.
       var $pickupSelect = $('#pickupSelect');
       $.each(jsonData.pickup_features, function(key, value) {
         $pickupSelect.append($('<option></option>').attr('value', key).text(key));
       });
 
-      // Populate the location_features dropdown
+      // Populate the location_features dropdown.
       var $locationSelect = $('#locationSelect');
       $.each(jsonData.location_features, function(key, value) {
         $locationSelect.append($('<option></option>').attr('value', key).text(key));
       });
 
-      // Initial update of both lists using the first option in each dropdown
+      // Initial update of both lists using the first option in each dropdown.
       updateList('pickupSelect', 'pickupList', jsonData.pickup_features, globalCrossedPickups);
       updateList('locationSelect', 'locationList', jsonData.location_features, globalCrossedLocations);
 
-      // Update lists when dropdowns change
+      // Update lists when dropdowns change.
       $pickupSelect.on('change', function() {
         updateList('pickupSelect', 'pickupList', jsonData.pickup_features, globalCrossedPickups);
       });
-
       $locationSelect.on('change', function() {
         updateList('locationSelect', 'locationList', jsonData.location_features, globalCrossedLocations);
       });
 
-      // Dark mode toggle
+      // Dark mode toggle.
       $('#toggleDark').on('click', function() {
         $('body').toggleClass('dark-mode light-mode');
         if ($('body').hasClass('dark-mode')) {
@@ -682,18 +784,63 @@
         }
       });
 
-      // Toggle the checkbox state and update the global store.
-      $('#pickupList, #locationList').on('change', 'input[type="checkbox"]', function() {
-        var $li = $(this).closest('li');
-        var itemText = $li.find('span').text();
-        var listId = $li.closest('ul').attr('id');
-        if (listId === 'pickupList') {
-          globalCrossedPickups[itemText] = $(this).prop('checked');
-          updateList('pickupSelect', 'pickupList', jsonData.pickup_features, globalCrossedPickups);
-        } else if (listId === 'locationList') {
-          globalCrossedLocations[itemText] = $(this).prop('checked');
-          updateList('locationSelect', 'locationList', jsonData.location_features, globalCrossedLocations);
+      // Delete handler for tracked combination.
+      $(document).on('click', '.delete-item', function() {
+        $(this).parent().remove();
+      });
+
+      // Handler for the plus button to add a tracked combination.
+      $('#addCombination').on('click', function() {
+        var pickupKey = $('#pickupSelect').val();
+        var locationText = $('#locationSelect option:selected').text();
+        var $li = $('<li></li>');
+        // Store the values in data attributes.
+        $li.attr('data-pickup', pickupKey);
+        $li.attr('data-location', locationText);
+        $li.append('<span class="delete-item">❌</span>');
+        $li.append('<span><strong>Hint</strong>: </span>');
+        // If the pickup is "a specific item", embed a small dropdown for the specific items.
+        if (pickupKey === "a specific item") {
+          var $pickupDropdown = $('<select style="color: red;" class="specific-item-dropdown"></select>');
+          $.each(jsonData.pickup_features["a specific item"], function(index, item) {
+            $pickupDropdown.append($('<option></option>').attr('value', item).text(item));
+          });
+          $li.append($pickupDropdown);
+          $li.append(` can be found <span style='color: red'>${locationText}</span>  <span class="lore-help" title="Explore this hint in the finder">　❓</span>`);
+        } else {
+          $li.append("<span style='color: red'>" + pickupKey + "</span> can be found <span style='color: red'>" + locationText + '</span> <span class="lore-help" title="Explore this hint in the finder">　❓</span>');
         }
+        // Create a new dropdown for selecting region → room.
+        var $regionDropdown = $('<select class="combination-location-select"></select>');
+        $.each(regionRooms, function(region, rooms) {
+          $.each(rooms, function(index, room) {
+            var optionText = region + ' → ' + room;
+            $regionDropdown.append($('<option></option>').attr('value', optionText).text(optionText));
+          });
+        });
+        $li.append("<br /><span><strong>Scanned At</strong>: </span>");
+        $li.append($regionDropdown);
+
+        var $roomsDropdown = $('<select class="combination-room-select"></select>');
+          $roomsDropdown.append(`<option>-------</option>`);
+        jsonData.location_features[locationText].list.forEach(element => {
+          $roomsDropdown.append(`<option value='${element}'>${element}</option>`);
+        });
+        // Append a load button to load the tracked combination into the left dropdowns.
+        $li.append("<br /><span><strong>Found in</strong>: </span>")
+        $li.append($roomsDropdown);
+        $li.append("<hr>");
+        $('#combinationList').append($li);
+      });
+
+      // Handler for the load button on tracked combinations.
+      $(document).on('click', '.lore-help', function() {
+        var $li = $(this).closest('li');
+        var pickupValue = $li.data('pickup');
+        var locationValue = $li.data('location');
+        // Set the left dropdowns accordingly and trigger change to update the lists.
+        $('#pickupSelect').val(pickupValue).change();
+        $('#locationSelect').val(locationValue).change();
       });
     });
   </script>
