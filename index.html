@@ -176,6 +176,19 @@
     // JSON data for the app
     var jsonData = {
       "pickup_features": {
+        "a specific item": [
+          "Combat Visor", "Scan Visor", "Varia Suit", "Power Beam", "Charge Beam", "Morph Ball",
+          "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Space Jump Boots",
+          "Grapple Beam", "Screw Attack", "Progressive Grapple", "Missile Launcher", "Super Missile", "Energy Tank", "Missile Expansion",
+          "Dark Visor", "Echo Visor",
+          "Dark Suit", "Light Suit", "Progressive Suit",
+          "Dark Beam", "Light Beam", "Annihilator Beam", 
+          "Cannon Ball", "Gravity Boost", "Seeker Launcher", 
+          "Sunburst", "Darkburst", "Sonic Boom",
+          "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator",
+          "Double Damage", "Unlimited Beam Ammo", "Unlimited Missiles", "Cannon Ball",
+          "Dark Ammo Expansion", "Light Ammo Expansion", "Beam Ammo Expansion",
+        ],
         "some Chozo technology": [
           "Combat Visor", "Scan Visor", "Varia Suit", "Power Beam", "Charge Beam", "Morph Ball",
           "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Space Jump Boots",
@@ -195,27 +208,15 @@
           "Dark Ammo Expansion", "Light Ammo Expansion", "Beam Ammo Expansion"
         ],
         "a beam": [
-          "Power Beam", "Charge Beam", "Dark Beam", "Light Beam", "Annihilator Beam", "Double Damage", "Unlimited Beam Ammo"
+          "Power Beam", "Charge Beam", "Dark Beam", "Light Beam", "Annihilator Beam"
         ],
         "a charge combo": ["Super Missile", "Sunburst", "Darkburst", "Sonic Boom"],
         "a cheater's delight": ["Double Damage", "Unlimited Beam Ammo", "Unlimited Missiles", "Cannon Ball"],
         "a dark-aligned upgrade": ["Dark Visor", "Dark Suit", "Dark Beam", "Annihilator Beam", "Darkburst", "Sonic Boom"],
         "a key": ["Dark Agon Key", "Dark Torvus Key", "Ing Hive Key", "Sky Temple Key"],
         "a light-aligned upgrade": ["Light Suit", "Light Beam", "Annihilator Beam", "Sunburst", "Sonic Boom"],
-        // "a major item": [
-        //   "Combat Visor", "Scan Visor", "Varia Suit", "Power Beam", "Charge Beam", "Morph Ball",
-        //   "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Space Jump Boots",
-        //   "Grapple Beam", "Screw Attack", "Progressive Grapple", "Missile Launcher", "Super Missile", "Energy Tank", "Missile Expansion",
-        //   "Dark Visor", "Echo Visor",
-        //   "Dark Suit", "Light Suit", "Progressive Suit",
-        //   "Dark Beam", "Light Beam", "Annihilator Beam", 
-        //   "Cannon Ball", "Gravity Boost", "Seeker Launcher", 
-        //   "Sunburst", "Darkburst", "Sonic Boom",
-        //   "Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator",
-        //   "Double Damage", "Unlimited Beam Ammo", "Unlimited Missiles", "Cannon Ball"
-        // ],
         "a missile system": ["Missile Launcher", "Unlimited Missiles", "Seeker Launcher", "Super Missile", "Sunburst", "Darkburst", "Sonic Boom"],
-        "a morph ball system": ["Morph Ball", "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb", "Cannon Ball"],
+        "a morph ball system": ["Morph Ball", "Morph Ball Bomb", "Boost Ball", "Spider Ball", "Power Bomb"],
         "a movement system": ["Space Jump Boots", "Gravity Boost", "Grapple Beam", "Screw Attack", "Progressive Grapple"],
         "a suit": ["Varia Suit","Dark Suit", "Light Suit", "Progressive Suit"],
         "a translator": ["Violet Translator", "Amber Translator", "Emerald Translator", "Cobalt Translator"],
@@ -235,8 +236,8 @@
             "Dark Torvus Bog → Dark Torvus Arena (Guardian)",
             "Dark Torvus Bog → Sacrificial Chamber", 
             "Dark Torvus Bog → Undertemple (Guardian)",
-            "Sanctuary Fortress → Main Research",
             "Sanctuary Fortress → Aerie",
+            "Sanctuary Fortress → Dynamo Works (Guardian)",
             "Ing Hive → Hive Temple"
           ]
         },
@@ -245,13 +246,13 @@
           "list": [
             "Temple Grounds → Hive Chamber B", 
             "Great Temple → Transport B Access",
+            "Agon Wastes → Command Center",
             "Agon Wastes → Mining Station Access",
-            "Dark Agon Wastes → Ing Cache 4",
-            "Dark Agon Wastes → Junction Site",
             "Agon Wastes → Mine Shaft",
             "Agon Wastes → Portal Access A",
             "Agon Wastes → Ventilation Area A",
-            "Agon Wastes → Command Center",
+            "Dark Agon Wastes → Ing Cache 4",
+            "Dark Agon Wastes → Junction Site",
             "Torvus Bog → Plaza Access",
             "Torvus Bog → Temple Access",
             "Torvus Bog → Underground Tunnel",
@@ -280,23 +281,23 @@
           "memo": "",
           "list": [
             "Agon Wastes → Mining Station B",
+            "Agon Wastes → Sand Processing",
             "Agon Wastes → Transport Center",
             "Dark Agon Wastes → Junction Site",
-            "Agon Wastes → Sand Processing",
             "Torvus Bog → Forgotten Bridge",
             "Torvus Bog → Plaza Access",
             "Torvus Bog → Gathering Hall",
             "Torvus Bog → Training Chamber",
-            "Dark Torvus Bog → Undertemple (Pickup)",
-            "Dark Torvus Bog → Undertemple (Guardian)",
             "Torvus Bog → Transit Tunnel South",
             "Torvus Bog → Transit Tunnel East",
-            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Dark Torvus Bog → Undertemple (Pickup)",
+            "Dark Torvus Bog → Undertemple (Guardian)",
             "Sanctuary Fortress → Dynamo Works (Pickup)",
             "Sanctuary Fortress → Dynamo Works (Guardian)",
-            "Sanctuary Fortress → Watch Station",
+            "Sanctuary Fortress → Hall of Combat Mastery",
             "Sanctuary Fortress → Main Gyro Chamber",
-            "Sanctuary Fortress → Vault"
+            "Sanctuary Fortress → Vault",
+            "Sanctuary Fortress → Watch Station"
           ]
         },
         "near a Boost Pipe": {
@@ -531,23 +532,23 @@
         "near some Luminoth Lore": {
           "memo": "This refers to translator scans only.",
           "list": [
+            "Great Temple → Main Energy Controller",
+            "Temple Grounds → Fortress Transport Access",
+            "Temple Grounds → Transport to Agon Wastes",
             "Agon Wastes → Agon Energy Controller",
             "Agon Wastes → Mining Plaza",
             "Agon Wastes → Mining Station A",
             "Agon Wastes → Mining Station B",
-            "Great Temple → Main Energy Controller",
-            "Sanctuary Fortress → Hall of Combat Mastery",
-            "Sanctuary Fortress → Main Gyro Chamber",
-            "Sanctuary Fortress → Sanctuary Energy Controller",
-            "Sanctuary Fortress → Sanctuary Entrance",
-            "Sanctuary Fortress → Watch Station",
-            "Temple Grounds → Fortress Transport Access",
-            "Temple Grounds → Transport to Agon Wastes",
             "Torvus Bog → Gathering Hall",
             "Torvus Bog → Path of Roots",
             "Torvus Bog → Torvus Energy Controller",
             "Torvus Bog → Training Chamber",
-            "Torvus Bog → Underground Tunnel"
+            "Torvus Bog → Underground Tunnel",
+            "Sanctuary Fortress → Hall of Combat Mastery",
+            "Sanctuary Fortress → Main Gyro Chamber",
+            "Sanctuary Fortress → Sanctuary Energy Controller",
+            "Sanctuary Fortress → Sanctuary Entrance",
+            "Sanctuary Fortress → Watch Station"
           ]
         },
         "near some Phazon": {
