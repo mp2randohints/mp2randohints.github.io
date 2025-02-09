@@ -791,6 +791,7 @@
 
       // Handler for the plus button to add a tracked combination.
       $('#addCombination').on('click', function() {
+        $(document).scrollTop($(document).height());
         var pickupKey = $('#pickupSelect').val();
         var locationText = $('#locationSelect option:selected').text();
         var $li = $('<li></li>');
